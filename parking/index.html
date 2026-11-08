@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Soukankumpu parking lots | Guest parking</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: white;
+        font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+      }
+      main {
+        max-width: 760px;
+        margin: auto;
+        padding: 16px;
+        display: grid;
+        gap: 24px;
+      }
+      .lot-title {
+        margin: 0 0 8px;
+        color: #26332f;
+        font-size: 18px;
+        line-height: 1.3;
+      }
+      .lot-title span[lang="en"] {
+        font-weight: 400;
+      }
+      .parking-lot svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .parking-lot .space {
+        cursor: pointer;
+      }
+      .parking-lot .space:hover rect {
+        stroke: #26332f;
+        stroke-width: 4;
+      }
+      .parking-legend {
+        display: grid;
+        gap: 8px;
+        color: #26332f;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .legend-swatch {
+        flex: none;
+        width: 17.07317%;
+        aspect-ratio: 14 / 5;
+        background: #ef8585;
+        border: 2px solid #a83c47;
+      }
+      .legend-swatch.guest {
+        background: #cfe5fa;
+        border-color: #236aa0;
+      }
+      .error {
+        padding: 16px;
+        color: #a02d28;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+      @media print {
+        body {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        main {
+          width: 94mm;
+          max-width: none;
+          margin: 0 auto;
+          padding: 0;
+          gap: 2mm;
+          break-inside: avoid;
+        }
+        .parking-lot {
+          break-inside: avoid;
+          break-after: auto;
+        }
+        .lot-title {
+          margin-bottom: 1mm;
+          font-size: 10pt;
+          line-height: 1.2;
+        }
+        .parking-lot svg {
+          width: 100%;
+          height: auto;
+        }
+        .parking-legend {
+          gap: 1mm;
+          font-size: 10pt;
+          line-height: 1.2;
+          break-inside: avoid;
+        }
+        .legend-item {
+          gap: 3mm;
+        }
+        .legend-swatch {
+          border-width: 0.24mm;
+        }
+        .legend-swatch.guest {
+          border-width: 0.36mm;
+        }
+        .parking-lot .space:hover rect,
+        .parking-lot .space:focus rect {
+          stroke: #a83c47;
+          stroke-width: 2;
+        }
+        .parking-lot .space.guest:hover rect,
+        .parking-lot .space.guest:focus rect {
+          stroke: #236aa0;
+          stroke-width: 3;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="parking-lots" aria-label="Soukankumpu parking lots">
+      <footer
+        id="parking-legend"
+        class="parking-legend"
+        aria-label="Paikkatyypit"
+        lang="fi"
+      >
+        <div class="legend-item">
+          <span class="legend-swatch guest" aria-hidden="true"></span
+          ><span>Vieraspaikka / <span lang="en">Guest parking</span></span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-swatch" aria-hidden="true"></span
+          ><span>Varattu paikka / <span lang="en">Reserved parking</span></span>
+        </div>
+      </footer>
+    </main>
+    <template id="lot-template">
+      <section class="parking-lot">
+        <h2 class="lot-title" data-role="lot-title">
+          <span lang="fi" data-role="fi-title"></span> /
+          <span lang="en" data-role="en-title"></span>
+        </h2>
+        <div class="map-container" data-role="map" aria-busy="true"></div>
+        <p class="error" data-role="error" role="alert" hidden></p>
+      </section>
+    </template>
+    <script type="module">
+      const lots = [
+        {
+          id: "upper",
+          title: "Upper parking lot",
+          finnishTitle: "Yläparkkipaikka",
+          file: "upper.svg",
+          numbers: [
+            "00",
+            "0",
+            ...Array.from({ length: 30 }, (_, index) => String(index + 1)),
+          ],
+        },
+        {
+          id: "lower",
+          title: "Lower parking lot",
+          finnishTitle: "Alaparkkipaikka",
+          file: "lower.svg",
+          numbers: Array.from({ length: 18 }, (_, index) => String(index + 31)),
+        },
+      ];
+
+      async function initializeLot(lot) {
+        const root = document
+          .querySelector("#lot-template")
+          .content.firstElementChild.cloneNode(true);
+        root.id = `${lot.id}-lot`;
+        const find = (role) => root.querySelector(`[data-role="${role}"]`);
+        find("fi-title").textContent = lot.finnishTitle;
+        find("en-title").textContent = lot.title;
+        find("lot-title").id = `${lot.id}-title`;
+        root.setAttribute("aria-labelledby", `${lot.id}-title`);
+        const allNumbers = lot.numbers;
+        document
+          .querySelector("#parking-lots")
+          .insertBefore(root, document.querySelector("#parking-legend"));
+        const storageKey = `soukankumpu.${lot.id}.guest-spaces.v1`;
+        const guests = new Set();
+        const map = find("map");
+        const message = find("error");
+        const controls = new Map();
+        let svg;
+
+        function selectedNumbers() {
+          return allNumbers.filter((number) => guests.has(number));
+        }
+
+        function render() {
+          for (const [number, space] of controls) {
+            const selected = guests.has(number);
+            space.classList.toggle("guest", selected);
+            space.setAttribute("aria-pressed", String(selected));
+            space.setAttribute(
+              "aria-label",
+              `Space ${number}: ${selected ? "guest parking" : "reserved parking"}`,
+            );
+            space.querySelector("title").textContent =
+              `Space ${number}: ${selected ? "guest parking" : "reserved parking"}`;
+          }
+        }
+
+        function persist() {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(selectedNumbers()));
+            message.hidden = true;
+          } catch {
+            message.textContent =
+              "Browser storage unavailable. Changes are not saved.";
+            message.hidden = false;
+          }
+        }
+
+        function toggle(number) {
+          if (guests.has(number)) guests.delete(number);
+          else guests.add(number);
+          render();
+          persist();
+        }
+
+        try {
+          const response = await fetch(`./${lot.file}`);
+          if (!response.ok)
+            throw new Error(`Map request failed (${response.status}).`);
+          const documentSvg = new DOMParser().parseFromString(
+            await response.text(),
+            "image/svg+xml",
+          );
+          if (
+            documentSvg.querySelector("parsererror") ||
+            documentSvg.documentElement.localName !== "svg"
+          )
+            throw new Error("Invalid SVG map.");
+          svg = document.importNode(documentSvg.documentElement, true);
+          svg.setAttribute("role", "group");
+          svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
+          map.append(svg);
+
+          try {
+            const stored = JSON.parse(localStorage.getItem(storageKey) || "[]");
+            if (Array.isArray(stored)) {
+              for (const number of stored) {
+                if (allNumbers.includes(number)) guests.add(number);
+              }
+            }
+          } catch {
+            message.textContent =
+              "Saved selections could not be loaded. Browser storage may be unavailable.";
+            message.hidden = false;
+          }
+
+          for (const number of allNumbers) {
+            const space = svg.querySelector(`[data-space="${number}"]`);
+            if (!space)
+              throw new Error(`Space ${number} is missing from the map.`);
+            space.setAttribute("role", "button");
+            space.setAttribute("tabindex", "0");
+            space.addEventListener("click", () => toggle(number));
+            space.addEventListener("keydown", (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                toggle(number);
+              }
+            });
+            controls.set(number, space);
+          }
+
+          render();
+        } catch (error) {
+          message.hidden = false;
+          message.textContent = `Unable to load the map. Open this page through a local web server. ${error.message}`;
+        } finally {
+          map.setAttribute("aria-busy", "false");
+        }
+      }
+
+      await Promise.all(lots.map(initializeLot));
+    </script>
+  </body>
+</html>

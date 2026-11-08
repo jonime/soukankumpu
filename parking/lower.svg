@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 110 820 650" role="img" aria-labelledby="lower-map-title lower-map-description">
+  <title id="lower-map-title">Lower parking lot</title>
+  <desc id="lower-map-description">Straightened schematic parking map, not to scale. Upper row from left to right: 31 through 39. Lower row from left to right: 48 through 40. A pedestrian pathway runs along the upper-left edge. A short access road below it connects the parking lot to Miniatonkuja. A low perimeter fence has an entrance on the left between the parking rows. Red spaces are reserved; blue spaces are guest parking.</desc>
+  <style>
+    text { font-family: sans-serif; fill: #26332f; }
+    .space rect { fill: #ef8585; stroke: #a83c47; stroke-width: 2; }
+    .space text { fill: #4b151b; font-size: 25px; font-weight: 600; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    .space.guest rect { fill: #cfe5fa; stroke: #236aa0; stroke-width: 3; }
+    .space.guest text { fill: #154d7b; }
+    .space:focus { outline: none; }
+    .space:focus rect { stroke: #26332f; stroke-width: 5; }
+  </style>
+
+  <rect width="820" height="760" fill="#ffffff"/>
+  <path id="lower-asphalt" d="M140 660 V260 H220 V120 H670 V560 H220 V660" fill="#e9edeb" stroke="#87918b" stroke-width="2"/>
+  <rect id="lower-pathway" x="140" y="120" width="80" height="140" fill="#f4f5f4" stroke="#87918b" stroke-width="2"><title>Pedestrian pathway</title></rect>
+  <g id="lower-fence" fill="none" stroke="#52635b" pointer-events="none">
+    <title>Low perimeter fence with an entrance between the parking rows</title>
+    <path d="M220 260 V120 H670 V560 H220 V420" stroke-width="2"/>
+  </g>
+  <g id="lower-parking-spaces">
+    <g id="lower-upper-row">
+      <g class="space" id="space-31" data-space="31" data-orientation="perpendicular"><title>Parking space 31</title><rect x="220" y="120" width="50" height="140"/><text x="245" y="190">31</text></g>
+      <g class="space" id="space-32" data-space="32" data-orientation="perpendicular"><title>Parking space 32</title><rect x="270" y="120" width="50" height="140"/><text x="295" y="190">32</text></g>
+      <g class="space" id="space-33" data-space="33" data-orientation="perpendicular"><title>Parking space 33</title><rect x="320" y="120" width="50" height="140"/><text x="345" y="190">33</text></g>
+      <g class="space" id="space-34" data-space="34" data-orientation="perpendicular"><title>Parking space 34</title><rect x="370" y="120" width="50" height="140"/><text x="395" y="190">34</text></g>
+      <g class="space" id="space-35" data-space="35" data-orientation="perpendicular"><title>Parking space 35</title><rect x="420" y="120" width="50" height="140"/><text x="445" y="190">35</text></g>
+      <g class="space" id="space-36" data-space="36" data-orientation="perpendicular"><title>Parking space 36</title><rect x="470" y="120" width="50" height="140"/><text x="495" y="190">36</text></g>
+      <g class="space" id="space-37" data-space="37" data-orientation="perpendicular"><title>Parking space 37</title><rect x="520" y="120" width="50" height="140"/><text x="545" y="190">37</text></g>
+      <g class="space" id="space-38" data-space="38" data-orientation="perpendicular"><title>Parking space 38</title><rect x="570" y="120" width="50" height="140"/><text x="595" y="190">38</text></g>
+      <g class="space" id="space-39" data-space="39" data-orientation="perpendicular"><title>Parking space 39</title><rect x="620" y="120" width="50" height="140"/><text x="645" y="190">39</text></g>
+    </g>
+    <g id="lower-bottom-row">
+      <g class="space" id="space-48" data-space="48" data-orientation="perpendicular"><title>Parking space 48</title><rect x="220" y="420" width="50" height="140"/><text x="245" y="490">48</text></g>
+      <g class="space" id="space-47" data-space="47" data-orientation="perpendicular"><title>Parking space 47</title><rect x="270" y="420" width="50" height="140"/><text x="295" y="490">47</text></g>
+      <g class="space" id="space-46" data-space="46" data-orientation="perpendicular"><title>Parking space 46</title><rect x="320" y="420" width="50" height="140"/><text x="345" y="490">46</text></g>
+      <g class="space" id="space-45" data-space="45" data-orientation="perpendicular"><title>Parking space 45</title><rect x="370" y="420" width="50" height="140"/><text x="395" y="490">45</text></g>
+      <g class="space" id="space-44" data-space="44" data-orientation="perpendicular"><title>Parking space 44</title><rect x="420" y="420" width="50" height="140"/><text x="445" y="490">44</text></g>
+      <g class="space" id="space-43" data-space="43" data-orientation="perpendicular"><title>Parking space 43</title><rect x="470" y="420" width="50" height="140"/><text x="495" y="490">43</text></g>
+      <g class="space" id="space-42" data-space="42" data-orientation="perpendicular"><title>Parking space 42</title><rect x="520" y="420" width="50" height="140"/><text x="545" y="490">42</text></g>
+      <g class="space" id="space-41" data-space="41" data-orientation="perpendicular"><title>Parking space 41</title><rect x="570" y="420" width="50" height="140"/><text x="595" y="490">41</text></g>
+      <g class="space" id="space-40" data-space="40" data-orientation="perpendicular"><title>Parking space 40</title><rect x="620" y="420" width="50" height="140"/><text x="645" y="490">40</text></g>
+    </g>
+  </g>
+
+  <rect x="55" y="660" width="730" height="80" fill="#e3e7e5"/>
+  <path d="M55 660 H140 M220 660 H785 V740 H55" fill="none" stroke="#87918b" stroke-width="3"/>
+  <text x="450" y="710" font-size="30" font-weight="600" text-anchor="middle">Miniatonkuja</text>
+</svg>
