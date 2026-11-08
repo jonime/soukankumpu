@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Soukankumpu parking lots | Guest parking</title>
+    <title>Vieraspaikat / Guest parking | Soukankumpu</title>
     <style>
       :root {
         color-scheme: light;
@@ -17,17 +17,68 @@
         font-family: "Avenir Next", "Trebuchet MS", sans-serif;
       }
       main {
-        max-width: 760px;
-        margin: auto;
-        padding: 16px;
+        width: 210mm;
+        margin: 0 auto;
+        padding: 10mm;
         display: grid;
-        gap: 24px;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 4mm 6mm;
+        align-items: start;
+      }
+      .print-header,
+      .parking-legend {
+        grid-column: 1 / -1;
+      }
+      .heading-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 4mm;
+      }
+      .print-header {
+        display: grid;
+        gap: 2mm;
+        margin-bottom: 10mm;
+        color: #26332f;
+        font-size: 10pt;
+      }
+      .print-header h1 {
+        margin: 0;
+        font-size: 16pt;
+        line-height: 1.2;
+      }
+      .print-header h1 span[lang="en"] {
+        font-weight: 400;
+      }
+      .guest-summary {
+        display: grid;
+        gap: 2mm;
+      }
+      .guest-summary p,
+      .print-date {
+        margin: 0;
+        line-height: 1.3;
+      }
+      .guest-numbers {
+        display: block;
+        font-size: 14pt;
+        font-weight: 600;
+      }
+      .print-date {
+        flex: none;
+        font-size: 9pt;
+        white-space: nowrap;
+        text-align: right;
+      }
+      .parking-lot {
+        min-width: 0;
+        break-inside: avoid;
       }
       .lot-title {
-        margin: 0 0 8px;
+        margin: 0 0 1mm;
         color: #26332f;
-        font-size: 18px;
-        line-height: 1.3;
+        font-size: 10pt;
+        line-height: 1.2;
       }
       .lot-title span[lang="en"] {
         font-weight: 400;
@@ -46,24 +97,27 @@
       }
       .parking-legend {
         display: grid;
-        gap: 8px;
+        gap: 1mm;
         color: #26332f;
+        font-size: 10pt;
+        line-height: 1.2;
       }
       .legend-item {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 3mm;
       }
       .legend-swatch {
         flex: none;
         width: 17.07317%;
         aspect-ratio: 14 / 5;
         background: #ef8585;
-        border: 2px solid #a83c47;
+        border: 0.24mm solid #a83c47;
       }
       .legend-swatch.guest {
         background: #cfe5fa;
         border-color: #236aa0;
+        border-width: 0.36mm;
       }
       .error {
         padding: 16px;
@@ -82,40 +136,21 @@
           -webkit-print-color-adjust: exact;
         }
         main {
-          width: 94mm;
-          max-width: none;
+          width: 190mm;
           margin: 0 auto;
           padding: 0;
-          gap: 2mm;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           break-inside: avoid;
+        }
+        .legend-swatch {
+          width: calc((100% - 6mm) * 0.08536585);
         }
         .parking-lot {
           break-inside: avoid;
           break-after: auto;
         }
-        .lot-title {
-          margin-bottom: 1mm;
-          font-size: 10pt;
-          line-height: 1.2;
-        }
-        .parking-lot svg {
-          width: 100%;
-          height: auto;
-        }
         .parking-legend {
-          gap: 1mm;
-          font-size: 10pt;
-          line-height: 1.2;
           break-inside: avoid;
-        }
-        .legend-item {
-          gap: 3mm;
-        }
-        .legend-swatch {
-          border-width: 0.24mm;
-        }
-        .legend-swatch.guest {
-          border-width: 0.36mm;
         }
         .parking-lot .space:hover rect,
         .parking-lot .space:focus rect {
@@ -132,6 +167,31 @@
   </head>
   <body>
     <main id="parking-lots" aria-label="Soukankumpu parking lots">
+      <section class="print-header" aria-labelledby="guest-parking-title">
+        <div class="heading-row">
+          <h1 id="guest-parking-title">
+            <span lang="fi">Vieraspaikat</span> /
+            <span lang="en">Guest parking</span>
+          </h1>
+          <p class="print-date">
+            <time id="print-date" aria-label="Tulostettu / Printed"></time>
+          </p>
+        </div>
+        <div class="guest-summary" aria-live="polite" hidden>
+          <p hidden>
+            <strong
+              ><span lang="fi">Yläparkkipaikalla</span> /
+              <span lang="en">Upper parking lot</span>:</strong
+            ><span id="summary-upper" class="guest-numbers">...</span>
+          </p>
+          <p hidden>
+            <strong
+              ><span lang="fi">Alaparkkipaikalla</span> /
+              <span lang="en">Lower parking lot</span>:</strong
+            ><span id="summary-lower" class="guest-numbers">...</span>
+          </p>
+        </div>
+      </section>
       <footer
         id="parking-legend"
         class="parking-legend"
@@ -159,6 +219,20 @@
       </section>
     </template>
     <script type="module">
+      function updatePrintDate() {
+        const now = new Date();
+        const date = document.querySelector("#print-date");
+        date.dateTime = now.toISOString();
+        date.textContent = new Intl.DateTimeFormat("fi-FI", {
+          day: "numeric",
+          month: "numeric",
+          year: "numeric",
+        }).format(now);
+      }
+
+      updatePrintDate();
+      window.addEventListener("beforeprint", updatePrintDate);
+
       const lots = [
         {
           id: "upper",
@@ -217,6 +291,12 @@
             space.querySelector("title").textContent =
               `Space ${number}: ${selected ? "guest parking" : "reserved parking"}`;
           }
+          const numbers = selectedNumbers();
+          const summary = document.querySelector(`#summary-${lot.id}`);
+          summary.textContent = numbers.join(", ");
+          summary.parentElement.hidden = numbers.length === 0;
+          const summaryBlock = summary.closest(".guest-summary");
+          summaryBlock.hidden = !summaryBlock.querySelector("p:not([hidden])");
         }
 
         function persist() {
@@ -288,6 +368,8 @@
         } catch (error) {
           message.hidden = false;
           message.textContent = `Unable to load the map. Open this page through a local web server. ${error.message}`;
+          document.querySelector(`#summary-${lot.id}`).textContent =
+            "Ei saatavilla / Unavailable";
         } finally {
           map.setAttribute("aria-busy", "false");
         }
